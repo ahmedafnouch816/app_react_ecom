@@ -20,7 +20,7 @@ class User(AbstractUser):
     def __str__(self):
         return self.email
     def save(self, *args, **kwargs):
-        email_username, mobile = self.email.split("@")
+        email_username = self.email.split("@")
         if self.full_name == "" or self.full_name == None:
             self.full_name = email_username
         if self.username == "" or self.username == None:
@@ -59,7 +59,7 @@ class Profile(models.Model):
     def thumbnail(self):
         return mark_safe('<img src="/media/%s" width="50" height="50" object-fit:"cover" style="border-radius: 30px; object-fit: cover;" />' % (self.image))
     
-
+#when create new user direct on create un profile 
 def create_user_profile(sender, instance, created, **kwargs):
         if created:
             Profile.objects.create(user=instance)
