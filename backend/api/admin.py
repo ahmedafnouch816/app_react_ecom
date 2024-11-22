@@ -26,8 +26,8 @@ class NotificationAdmin(admin.ModelAdmin):
 
 admin.site.register(api_models.User, UserAdmin)
 admin.site.register(api_models.Profile, ProfileAdmin)
-#admin.site.register(api_models.Category, CategoryAdmin)
-#admin.site.register(api_models.Post, PostAdmin)
-#admin.site.register(api_models.Comment, CommentAdmin)
-#admin.site.register(api_models.Notification, NotificationAdmin)
-#admin.site.register(api_models.Bookmark, BookmarkAdmin)
+admin.site.register(api_models.Category, CategoryAdmin)
+admin.site.register(api_models.Post, PostAdmin)
+admin.site.register(api_models.Comment, CommentAdmin)
+admin.site.register(api_models.Notification, NotificationAdmin)
+admin.site.register(api_models.Bookmark, BookmarkAdmin)
