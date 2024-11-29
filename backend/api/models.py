@@ -75,27 +75,22 @@ post_save.connect(save_user_profile, sender=User)
 
 class Category(models.Model):
     title = models.CharField(max_length=100)
-    image = models.FileField(upload_to="image" , null=True , blank=True)
-    slug = models.SlugField(unique=True, null=True , blank=True)
-    
-    
+    image = models.FileField(upload_to="image", null=True, blank=True)
+    slug = models.SlugField(unique=True, null=True, blank=True)
+
     def __str__(self):
         return self.title
-    
-    
-   #class Meta:
-   #    ordering =["-date"]
-   #    verbose_name_plural = "Category"
-    
+
     def save(self, *args, **kwargs):
-        if self.slug == "" or self.image == None:
+        if not self.slug:
             self.slug = slugify(self.title)
         super(Category, self).save(*args, **kwargs)
-        
-        
+
     def post_count(self):
-        return Post.objects.filter(Category=self).count()
-        
+        return Post.objects.filter(category=self).count()  # Fixed field name to 'category'
+
+    class Meta:
+        verbose_name_plural = "Categories"
         
         
 class Post(models.Model):
