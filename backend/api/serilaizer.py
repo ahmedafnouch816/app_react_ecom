@@ -12,28 +12,48 @@ from api import models as api_models
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
     def get_token(cls, user):
+        """
+        Personnalise le contenu du token JWT généré pour un utilisateur.
+
+        Cette méthode surcharge `get_token` de la classe parent `TokenObtainPairSerializer`.
+        Elle permet d'ajouter des informations supplémentaires (comme `full_name`, `email`,
+        et `username`) au payload du token JWT.
+
+        Arguments :
+        - cls : Référence à la classe actuelle (`MyTokenObtainPairSerializer`).
+        - user : Instance de l'utilisateur pour lequel le token est généré.
+
+        Retour :
+        - token : Instance du token enrichi avec des champs personnalisés.
+        """
+        # Appel de la méthode `get_token` de la classe parent pour générer un token de base.
         token = super().get_token(user)
 
-        token['full_name'] = user.full_name
-        token['email'] = user.email
-        token['username'] = user.username
+        # Ajout de champs personnalisés au payload du token.
+        token['full_name'] = user.full_name  # Ajoute le nom complet de l'utilisateur.
+        token['email'] = user.email          # Ajoute l'adresse e-mail de l'utilisateur.
+        token['username'] = user.username    # Ajoute le nom d'utilisateur.
+
+        # Retourne le token enrichi.
         return token 
+
     
 
 class RegisterSerialier(serializers.ModelSerializer):
+    # Field for password with write-only access and validation
     password = serializers.CharField(write_only=True, required=True , validators=[validate_password]) 
-    
+    # Field for confirming password with write-only access
     password2 = serializers.CharField(write_only=True, required=True)
     
     class Meta:
         model = api_models.User
         fields = ['full_name', 'email', 'username', 'password', 'password2']
-        
+    
+    #Validate that the password and confirm password fields match.    
     def validate(self, attr):
         if attr['password'] != attr['password']:
             raise serializers.ValidationError({"password": "Password field didn't match"})
         return attr
-
 
     def create(self , validated_data):
         user = api_models.User.objects.create(
@@ -78,10 +98,7 @@ class CategorySerializer(serializers.ModelSerializer):
         model = api_models.Category
         fields = ["id", "title", "image", "slug" , "post_count"]
 
-
-
-
-        
+#
 class CommentSerializer(serializers.ModelSerializer):
     def get_post_count(self, category):
         return category.posts.count()
@@ -99,9 +116,7 @@ class CommentSerializer(serializers.ModelSerializer):
                 self.Meta.depth = 1
                 
                 
-    
-
-
+#
 class PostSerializer(serializers.ModelSerializer):
     def get_post_count(self, category):
         return category.posts.count()
@@ -116,10 +131,9 @@ class PostSerializer(serializers.ModelSerializer):
             if request and request.method == "POST":
                 self.Meta.depth = 0
             else:
-                self.Meta.depth = 1           
+                self.Meta.depth = 1        
                 
-                
-
+#
 class BookmarkSerializer(serializers.ModelSerializer):
     def get_post_count(self, category):
         return category.posts.count()
@@ -136,8 +150,7 @@ class BookmarkSerializer(serializers.ModelSerializer):
             else:
                 self.Meta.depth = 1           
                 
-                
-
+#
 class NotificationSerializer(serializers.ModelSerializer):
     def get_post_count(self, category):
         return category.posts.count()

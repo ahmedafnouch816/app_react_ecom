@@ -35,12 +35,10 @@ from api import models as api_models
 
 
 # This code defines a DRF View class called MyTokenObtainPairView, which inherits from TokenObtainPairView.
-
 class MyTokenObtainPairView(TokenObtainPairView):
-    
     serializer_class = api_serializer.MyTokenObtainPairSerializer
     
-    
+#
 class RegisterView(generics.CreateAPIView):
     queryset = api_models.User.objects.all()
     permission_classes= [AllowAny]
@@ -64,6 +62,7 @@ class CategoryListAPIView(generics.ListAPIView):
     permission_classes = [AllowAny]
 
     def get_queryset(self):
+        #api models as api_models 
         return api_models.Category.objects.all()
 
 
@@ -76,5 +75,58 @@ class PostCategoryListAPIView(generics.ListAPIView):
         category = api_models.Category.objects.get(slug=category_slug)
         return api_models.Post.objects.filter(category=category, status="Active")
     
-    ep7
-      
+    
+#8
+
+class PostListAPIView(generics.ListAPIView):
+    serializer_class = api_serializer.PostSerializer
+    permission_classes = [AllowAny]
+    
+    def get_queryset(self):
+        return api_models.Post.objects.filter(status="Active")
+    
+class PostDetailAPIView(generics.RetrieveAPIView):
+    serializer_class = api_serializer.PostSerializer
+    permission_classes = [AllowAny]
+
+    def get_object(self):
+        slug = self.kwargs['slug']
+        post = api_models.Post.objects.get(slug=slug, status="Active")
+        post.view += 1
+        post.save()
+        return post
+    
+    
+#9
+
+class LikePostAPIView(APIView):
+    @swagger_auto_schema(
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'user_id': openapi.Schema(type=openapi.TYPE_INTEGER),
+                'post_id': openapi.Schema(type=openapi.TYPE_STRING),
+            },
+        ),
+    )
+    def post(self, request):
+        user_id = request.POST.get('user_id')
+        post_id = request.POST.get('post_id')
+
+        user = api_models.User.objects.get(id=user_id)
+        post = api_models.Post.objects.get(id= post_id)
+        
+        if user in post.likes.all():
+            post.likes.remove(user)
+            return Response({"message": "Post Disliked"} , status=status.HTTP_200_OK)
+        else:
+            post.likes.add(user)
+            
+            
+            api_models.Notification.objects.create(
+                user = post.user,
+                post=post,
+                type="Like"
+            )
+            
+            return Response({"message": "Post Liked"} , status=status.HTTP_201_CREATED)

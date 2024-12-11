@@ -85,9 +85,19 @@ class Category(models.Model):
         if not self.slug:
             self.slug = slugify(self.title)
         super(Category, self).save(*args, **kwargs)
-
     def post_count(self):
-        return Post.objects.filter(category=self).count()  # Fixed field name to 'category'
+        """
+        Retourne le nombre de publications (posts) associées à cette catégorie.
+
+        Cette méthode effectue une requête sur le modèle `Post` pour compter les
+        instances où le champ `category` correspond à l'instance actuelle de la
+        catégorie.
+
+        Returns:
+            int: Le nombre de publications dans cette catégorie.
+        """
+        return Post.objects.filter(category=self).count()
+
 
     class Meta:
         verbose_name_plural = "Categories"
