@@ -1,7 +1,4 @@
 from django.shortcuts import render
-
-# Create your views here.
-from django.shortcuts import render
 from django.http import JsonResponse
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
@@ -24,11 +21,8 @@ from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from datetime import datetime
 
-# Others
-import json
-import random
 
-# Custom Imports
+# Custm Imports
 from api import serilaizer as api_serializer
 from api import models as api_models
 
@@ -42,7 +36,7 @@ class MyTokenObtainPairView(TokenObtainPairView):
 class RegisterView(generics.CreateAPIView):
     queryset = api_models.User.objects.all()
     permission_classes= [AllowAny]
-    serializer_class = api_serializer.RegisterSerialier
+    serializer_class = api_serializer.RegisterSerializer
     
 # This code defines another DRF View class called ProfileView, which inherits from generics.RetrieveAPIView and used to show user profile view.
 class ProfileView(generics.RetrieveUpdateAPIView):
@@ -56,7 +50,7 @@ class ProfileView(generics.RetrieveUpdateAPIView):
         profile = api_models.Profile.objects.get(user=user)
         return profile
     
-    
+#7
 class CategoryListAPIView(generics.ListAPIView):
     serializer_class = api_serializer.CategorySerializer
     permission_classes = [AllowAny]
@@ -100,33 +94,203 @@ class PostDetailAPIView(generics.RetrieveAPIView):
 #9
 
 class LikePostAPIView(APIView):
+    #pour utilise swagger auto pour tesyt comme post man 
     @swagger_auto_schema(
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
             properties={
                 'user_id': openapi.Schema(type=openapi.TYPE_INTEGER),
-                'post_id': openapi.Schema(type=openapi.TYPE_STRING),
+                'post_id': openapi.Schema(type=openapi.TYPE_INTEGER),
             },
         ),
     )
     def post(self, request):
-        user_id = request.POST.get('user_id')
-        post_id = request.POST.get('post_id')
+        user_id = request.data['user_id']
+        post_id = request.data['post_id']
 
         user = api_models.User.objects.get(id=user_id)
-        post = api_models.Post.objects.get(id= post_id)
-        
+        post = api_models.Post.objects.get(id=post_id)
+
+        # Check if post has already been liked by this user
         if user in post.likes.all():
+            # If liked, unlike post
             post.likes.remove(user)
-            return Response({"message": "Post Disliked"} , status=status.HTTP_200_OK)
+            return Response({"message": "Post Disliked"}, status=status.HTTP_200_OK)
         else:
+            # If post hasn't been liked, like the post by adding user to set of poeple who have liked the post
             post.likes.add(user)
             
-            
+            # Create Notification for Author
             api_models.Notification.objects.create(
-                user = post.user,
+                user=post.user,
                 post=post,
-                type="Like"
+                type="Like",
             )
-            
-            return Response({"message": "Post Liked"} , status=status.HTTP_201_CREATED)
+            # Return response back to the frontend
+            return Response({"message": "Post Liked"}, status=status.HTTP_201_CREATED)
+        
+
+#10
+class PostCommentAPIView(APIView):
+    # add use swagger with different fileds 
+    @swagger_auto_schema(
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'post_id': openapi.Schema(type=openapi.TYPE_INTEGER),
+                'name': openapi.Schema(type=openapi.TYPE_STRING),
+                'email': openapi.Schema(type=openapi.TYPE_STRING),
+                'comment': openapi.Schema(type=openapi.TYPE_STRING),
+
+            },
+        ),
+    )
+    
+    def post(self, request):
+       # Get data from request.data (frontend)
+        post_id= request.data['post_id']
+        name= request.data['name']
+        email= request.data['email']
+        comment= request.data['comment']
+                
+        # get post id  and craete           
+        post =  api_models.Post.objects.get(id=post_id)
+        # Create Comment
+        api_models.Comment.objects.create(
+            post=post,
+            name=name,
+            email=email,
+            comment=comment
+        )
+        
+        # Create Notification for Author
+        api_models.Notification.objects.create(
+            user=post.user,
+            post=post,
+            type="Comment",
+        )
+        # Return response back to the frontend
+        return Response({"message": "Comment send "}, status=status.HTTP_201_CREATED)
+    
+#11
+class BookmarkPostAPIView(APIView):
+    @swagger_auto_schema(
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'user_id': openapi.Schema(type=openapi.TYPE_INTEGER),
+                'post_id': openapi.Schema(type=openapi.TYPE_INTEGER),
+        
+            },
+        ),
+    )
+    
+    def post(self, request):
+         # Get data from request.data (frontend)
+        user_id = request.data['user_id']
+        post_id = request.data['post_id']
+        
+        # Get data from api_model
+        user = api_models.User.objects.get(id=user_id)
+        post = api_models.Post.objects.get(id=post_id)
+        
+        bookmark = api_models.Bookmark.objects.filter(post=post, user=user).first()
+        
+        if bookmark:
+            # Remove post from bookmark
+            bookmark.delete()
+            return Response({"message": "Post un - bookmarked "}, status=status.HTTP_200_OK)
+        else:
+            api_models.Bookmark.objects.create(
+                user=user,
+                post=post,
+            ) 
+            # Create Notification for Author
+            api_models.Notification.objects.create(
+                user=post.user,
+                post=post,
+                type="Bookmark",
+            )
+        # Return response back to the frontend
+        return Response({"message": "Add bookmarhed"}, status=status.HTTP_201_CREATED)
+
+        
+        
+#12
+######################## Author Dashboard APIs ########################
+class DashboardStats(generics.ListAPIView):
+    serializer_class = api_serializer.AuthorStats
+    permission_classes = [AllowAny]
+
+    def get_queryset(self):
+        user_id = self.kwargs['user_id']
+        user = api_models.User.objects.get(id=user_id)
+
+        views = api_models.Post.objects.filter(user=user).aggregate(view=Sum("view"))['view']
+        posts = api_models.Post.objects.filter(user=user).count()
+        likes = api_models.Post.objects.filter(user=user).aggregate(total_likes=Sum("likes"))['total_likes']
+        bookmarks = api_models.Bookmark.objects.all().count()
+
+        return [{
+            "views": views,
+            "posts": posts,
+            "likes": likes,
+            "bookmarks": bookmarks,
+        }]
+    
+    #def list(self, request, *args, **kwargs):
+    #    querset = self.get_queryset()
+    #    serializer = self.get_serializer(querset, many=True)
+    #    return Response(serializer.data)
+        
+    
+
+#13
+class DashboardCommentLists(generics.ListAPIView):
+    serializer_class = api_serializer.PostSerializer
+    permission_classes = [AllowAny]
+    
+    def get_queryset(self):
+        user_id =  self.kwargs['user_id']
+        user =  api_models.User.objects.get(id=user_id)
+        return api_models.Post.objects.filter(user=user).order_by("-id")
+
+class DashboardCommentLists(generics.ListAPIView):
+    serializer_class = api_serializer.CommentSerializer
+    permission_classes = [AllowAny]
+    def get_queryset(self):
+        user_id =  self.kwargs['user_id']
+        user =  api_models.User.objects.get(id=user_id)
+        return api_models.Comment.objects.filter(post__user=user)
+    
+    
+class DashboardNotificationsList(generics.ListAPIView):
+    serializer_class = api_serializer.NotificationSerializer
+    permission_classes = [AllowAny]
+    def get_queryset(self):
+        user_id =  self.kwargs['user_id']
+        user =  api_models.User.objects.get(id=user_id)
+        return api_models.Comment.objects.filter(seen=False , user=user)
+    
+class DashboardMarkNotificationAsSeen(APIView):
+    def post(self, request):
+        noti_id = request.data['noti_id']
+        noti = api_models.Notification.objects.get(id=noti_id)
+        
+        noti.seen =  True 
+        noti.save()
+        
+        return Response({"message": "Noti maked as seen"}, status=status.HTTP_200_OK)
+
+
+class  DashboardPostCommentAPIView(APIView):
+    
+    def post(self, request):
+        comment_id =  request.data['comment_id']
+        reply = request.data['reply']
+        
+        comment = api_models.Comment.objects.get(id=comment_id)
+        comment.reply = reply
+        comment.save()
+        
+        return Response({"message": "comment response sent "}, status=status.HTTP_201_CREATED)

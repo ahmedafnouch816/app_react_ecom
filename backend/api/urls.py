@@ -34,5 +34,17 @@ urlpatterns = [
     path('post/lists/', api_views.PostListAPIView.as_view()),
     path('post/detail/<slug>/', api_views.PostDetailAPIView.as_view()),
     path('post/like-post/', api_views.LikePostAPIView.as_view()),
+    path('post/comment-post/', api_views.PostCommentAPIView.as_view()),
+    path('post/bookmark-post/', api_views.BookmarkPostAPIView.as_view()),
+
+
+    #12
+    path('author/dashnoard/stats/<user_id>', api_views.DashboardStats.as_view()),
+    path('author/dashnoard/comment-lits/<user_id>', api_views.DashboardCommentLists.as_view()),
+    path('author/dashnoard/noti-list/<user_id>', api_views.DashboardNotificationsList.as_view()),
+    path('author/dashnoard/noti-mark-seen/', api_views.DashboardMarkNotificationAsSeen.as_view()),
+    path('author/dashnoard/reply-comment/', api_views.DashboardPostCommentAPIView.as_view()),
+
+
 
 ]
