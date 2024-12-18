@@ -285,9 +285,6 @@ class  DashboardReplyCommentAPIView(APIView):
         comment.save()
         
         return Response({"message": "comment response sent "}, status=status.HTTP_201_CREATED)
-
-
-
 #ip14
 
 class DashboardPostCreateAPIView(generics.CreateAPIView):
@@ -319,7 +316,6 @@ class DashboardPostCreateAPIView(generics.CreateAPIView):
                                        )
         
         return Response({"message": "Post created successfully "}, status=status.HTTP_201_CREATED)
-
 
 #ip15
 class DashboardPostEditAPIView(generics.RetrieveUpdateDestroyAPIView):
@@ -361,7 +357,6 @@ class DashboardPostEditAPIView(generics.RetrieveUpdateDestroyAPIView):
         post_instance.save()
 
         return Response({"message": "Post Updated Successfully"}, status=status.HTTP_200_OK)
-
 
 {
     "title": "New post",
