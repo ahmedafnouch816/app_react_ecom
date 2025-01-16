@@ -25,19 +25,24 @@ from datetime import datetime
 # Custm Imports
 from api import serilaizer as api_serializer
 from api import models as api_models
-
-
+import json
+import random
 
 # This code defines a DRF View class called MyTokenObtainPairView, which inherits from TokenObtainPairView.
 class MyTokenObtainPairView(TokenObtainPairView):
+    # Here, it specifies the serializer class to be used with this view.
     serializer_class = api_serializer.MyTokenObtainPairSerializer
-    
-#
+
+# This code defines another DRF View class called RegisterView, which inherits from generics.CreateAPIView.
 class RegisterView(generics.CreateAPIView):
+    # It sets the queryset for this view to retrieve all User objects.
     queryset = api_models.User.objects.all()
-    permission_classes= [AllowAny]
+    # It specifies that the view allows any user (no authentication required).
+    permission_classes = (AllowAny,)
+    # It sets the serializer class to be used with this view.
     serializer_class = api_serializer.RegisterSerializer
-    
+
+
 # This code defines another DRF View class called ProfileView, which inherits from generics.RetrieveAPIView and used to show user profile view.
 class ProfileView(generics.RetrieveUpdateAPIView):
     permission_classes = (AllowAny,)
@@ -49,6 +54,12 @@ class ProfileView(generics.RetrieveUpdateAPIView):
         user = api_models.User.objects.get(id=user_id)
         profile = api_models.Profile.objects.get(user=user)
         return profile
+    
+
+def generate_numeric_otp(length=7):
+        # Generate a random 7-digit OTP
+        otp = ''.join([str(random.randint(0, 9)) for _ in range(length)])
+        return otp
     
 #7
 class CategoryListAPIView(generics.ListAPIView):
@@ -238,10 +249,13 @@ class DashboardStats(generics.ListAPIView):
             "bookmarks": bookmarks,
         }]
     
-    #def list(self, request, *args, **kwargs):
-    #    querset = self.get_queryset()
-    #    serializer = self.get_serializer(querset, many=True)
-    #    return Response(serializer.data)
+    def list(self, request, *args, **kwargs):
+        querset = self.get_queryset()
+        serializer = self.get_serializer(querset, many=True)
+        return Response(serializer.data)
+
+    
+
 #13
 class DashboardPostLists(generics.ListAPIView):
     serializer_class = api_serializer.PostSerializer

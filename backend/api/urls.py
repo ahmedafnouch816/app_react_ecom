@@ -22,6 +22,7 @@ schema_view = get_schema_view(
 
 urlpatterns = [
     # Userauths API Endpoints
+
     path('user/token/', api_views.MyTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('user/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('user/register/', api_views.RegisterView.as_view(), name='auth_register'),
@@ -39,7 +40,7 @@ urlpatterns = [
 
  
     #12 13 14 
-    path('author/dashnoard/stats/<user_id>', api_views.DashboardStats.as_view()),
+    path('author/dashnoard/stats/<user_id>/', api_views.DashboardStats.as_view()),
     path('author/dashboard/post-list/<user_id>/', api_views.DashboardPostLists.as_view()),
     path('author/dashnoard/comment-lit/', api_views.DashboardCommentLists.as_view()),
     path('author/dashnoard/noti-list/<user_id>/', api_views.DashboardNotificationsList.as_view()),
