@@ -14,19 +14,19 @@ function Dashboard() {
     const [comments, setComments] = useState([]);
     const [noti, setNoti] = useState([]);
 
-    const user_id = useUserData()?.user_id;
+    const userId = useUserData()?.user_id;
 
     const fetchDashboardData = async () => {
-        const stats_res = await apiInstance.get(`author/dashboard/stats/${user_id}/`);
+        const stats_res = await apiInstance.get(`author/dashboard/stats/${userId}/`);
         setStats(stats_res.data[0]);
 
-        const post_res = await apiInstance.get(`author/dashboard/post-list/${user_id}/`);
+        const post_res = await apiInstance.get(`author/dashboard/post-list/${userId}/`);
         setPosts(post_res.data);
 
         const comment_res = await apiInstance.get(`author/dashboard/comment-list/`);
         setComments(comment_res.data);
 
-        const noti_res = await apiInstance.get(`author/dashboard/noti-list/${user_id}/`);
+        const noti_res = await apiInstance.get(`author/dashboard/noti-list/${userId}/`);
         setNoti(noti_res.data);
     };
 

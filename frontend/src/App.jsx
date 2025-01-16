@@ -18,40 +18,43 @@ import EditPost from "./views/dashboard/EditPost";
 import Comments from "./views/dashboard/Comments";
 import Notifications from "./views/dashboard/Notifications";
 import Profile from "./views/dashboard/Profile";
-import MainWarpper from "../src/layouts/MainWrapper"
+
+import MainWrapper from "../src/layouts/MainWrapper";
 function App() {
-  return (
-      <>
-          <BrowserRouter>
-              <Routes>
-                  <Route path="/" element={<Index />} />
-                  <Route path="/:slug/" element={<Detail />} />
-                  <Route path="/category/" element={<Category />} />
-                  <Route path="/search/" element={<Search />} />
+    return (
+        <>
+            <BrowserRouter>
+                <MainWrapper>
+                    <Routes>
+                        <Route path="/" element={<Index />} />
+                        <Route path="/:slug/" element={<Detail />} />
+                        <Route path="/category/:slug/" element={<Category />} />
+                        <Route path="/search/" element={<Search />} />
 
-                  {/* Authentication */}
-                  <Route path="/register/" element={<Register />} />
-                  <Route path="/login/" element={<Login />} />
-                  <Route path="/logout/" element={<Logout />} />
-                  <Route path="/forgot-password/" element={<ForgotPassword />} />
-                  <Route path="/create-password/" element={<CreatePassword />} />
+                        {/* Authentication */}
+                        <Route path="/register/" element={<Register />} />
+                        <Route path="/login/" element={<Login />} />
+                        <Route path="/logout/" element={<Logout />} />
+                        <Route path="/forgot-password/" element={<ForgotPassword />} />
+                        <Route path="/create-password/" element={<CreatePassword />} />
 
-                  {/* Dashboard */}
-                  <Route path="/dashboard/" element={<Dashboard />} />
-                  <Route path="/posts/" element={<Posts />} />
-                  <Route path="/add-post/" element={<AddPost />} />
-                  <Route path="/edit-post/" element={<EditPost />} />
-                  <Route path="/comments/" element={<Comments />} />
-                  <Route path="/notifications/" element={<Notifications />} />
-                  <Route path="/profile/" element={<Profile />} />
+                        {/* Dashboard */}
+                        <Route path="/dashboard/" element={<Dashboard />} />
+                        <Route path="/posts/" element={<Posts />} />
+                        <Route path="/add-post/" element={<AddPost />} />
+                        <Route path="/edit-post/:id/" element={<EditPost />} />
+                        <Route path="/comments/" element={<Comments />} />
+                        <Route path="/notifications/" element={<Notifications />} />
+                        <Route path="/profile/" element={<Profile />} />
 
-                  {/* Pages */}
-                  <Route path="/about/" element={<About />} />
-                  <Route path="/contact/" element={<Contact />} />
-              </Routes>
-          </BrowserRouter>
-      </>
-  );
+                        {/* Pages */}
+                        <Route path="/about/" element={<About />} />
+                        <Route path="/contact/" element={<Contact />} />
+                    </Routes>
+                </MainWrapper>
+            </BrowserRouter>
+        </>
+    );
 }
 
 export default App;

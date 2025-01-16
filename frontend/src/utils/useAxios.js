@@ -26,7 +26,7 @@ const useAxios = () => {
 
         // If the access token is expired, refresh it
         const response = await getRefreshToken(refreshToken);
-        console.log('Refresh Token Response:', response);
+        // console.log('Refresh Token Response:', response);
         // Update the application with the new access and refresh tokens
         setAuthUser(response.access, response.refresh);
 
