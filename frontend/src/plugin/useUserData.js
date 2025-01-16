@@ -11,11 +11,11 @@ function useUserData() {
         // Both access and refresh tokens exist
         // Decode the refresh token to extract user information
         const token = refresh_token;
-        const decoded = jwtDecode(token);
+        //const decoded = jwtDecode(token);
 
         // Extract the user's unique identifier (user_id) from the decoded token
         // Return the decoded user data, which may include user information
-        return decoded;
+        //return decoded;
     } else {
         // One or both tokens (access or refresh) are missing
         // This block handles the case when either token is not present in the cookies.

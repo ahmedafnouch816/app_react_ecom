@@ -1,9 +1,30 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+
 import Header from "../partials/Header";
 import Footer from "../partials/Footer";
 import { Link } from "react-router-dom";
+import useUserData from "../../plugin/useUserData";
+import apiInstance from "../../utils/axios";
+import moment from "moment";
+
 
 function Posts() {
+        const [posts , setPost] = useState([])
+        const fetchPost = async () => {
+            try{
+                const post_res = await apiInstance.get(`author/dashboard/post-list/${user_id}/`)
+                setPost(post_res?.data)
+                console.log(post_res.data)
+            }catch(error){
+                console.log(error)
+            }
+        }
+
+
+        useEffect(()=>{
+            fetchPost()
+        },[])
+        
     return (
         <>
             <Header />
